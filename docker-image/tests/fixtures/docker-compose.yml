@@ -1,6 +1,6 @@
 services:
   minio:
-    image: quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z@sha256:14cea493d9a34af32f524e538b8346cf79f3321eff8e708c1e2960462bd8936e
+    image: cgr.dev/chainguard/minio@sha256:6a1d0b45c8669726bba580ced0bfa4cb9fdeed1ed636dfabd81d1577beb6937b
     platform: ${HELIX_IMAGE_PLATFORM:?HELIX_IMAGE_PLATFORM must be set}
     command: server /data --console-address ":9001"
     restart: unless-stopped
@@ -11,16 +11,16 @@ services:
       - minio-data:/data
 
   minio-init:
-    image: quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z@sha256:a7fe349ef4bd8521fb8497f55c6042871b2ae640607cf99d9bede5e9bdf11727
+    image: cgr.dev/chainguard/minio-client@sha256:fdb40d819ca51969c86fa76f45a67bb841759daf85d4c6ce9aa86d27f6e47ae9
     platform: ${HELIX_IMAGE_PLATFORM:?HELIX_IMAGE_PLATFORM must be set}
     depends_on:
       - minio
     entrypoint:
-      - /bin/sh
+      - /usr/bin/sh
       - -c
       - |
-        until mc alias set local http://minio:9000 minioadmin minioadmin; do sleep 1; done
-        mc mb --ignore-existing local/helix-db
+        until /usr/bin/mc alias set local http://minio:9000 minioadmin minioadmin; do sleep 1; done
+        /usr/bin/mc mb --ignore-existing local/helix-db
 
   helix:
     image: ${HELIX_IMAGE_REF:?HELIX_IMAGE_REF must be set}

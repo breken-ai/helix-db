@@ -74,9 +74,9 @@ def run(args):
     with tempfile.TemporaryFile() as trace_file:
         trace = subprocess.Popen([
             "docker", "run", "--rm", "--name", trace_name,
-            "--network", f"{args.project}_default", "--entrypoint", "/bin/sh", args.mc_image,
-            "-c", "mc alias set local http://minio:9000 minioadmin minioadmin >/dev/null && "
-            "mc admin trace --json --verbose --all local",
+            "--network", f"{args.project}_default", "--entrypoint", "/usr/bin/sh", args.mc_image,
+            "-c", "/usr/bin/mc alias set local http://minio:9000 minioadmin minioadmin >/dev/null && "
+            "/usr/bin/mc admin trace --json --verbose --all local",
         ], stdout=trace_file, stderr=subprocess.STDOUT)
         try:
             time.sleep(2)

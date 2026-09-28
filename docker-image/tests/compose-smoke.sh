@@ -46,7 +46,7 @@ fixtures_dir="$script_dir/fixtures"
 compose_file="$fixtures_dir/docker-compose.yml"
 port=${HELIX_IMAGE_COMPOSE_PORT:-18120}
 project="helixdb-image-compose-${RANDOM}-$$"
-mc_image="quay.io/minio/mc:RELEASE.2025-08-13T08-35-41Z@sha256:a7fe349ef4bd8521fb8497f55c6042871b2ae640607cf99d9bede5e9bdf11727"
+mc_image="cgr.dev/chainguard/minio-client@sha256:fdb40d819ca51969c86fa76f45a67bb841759daf85d4c6ce9aa86d27f6e47ae9"
 
 log() {
   printf '\n[%s] %s\n' "$(date '+%H:%M:%S')" "$*"
@@ -122,9 +122,9 @@ assert_minio_objects_present() {
   objects=$(docker run --rm \
     --platform "$platform" \
     --network "${project}_default" \
-    --entrypoint /bin/sh \
+    --entrypoint /usr/bin/sh \
     "$mc_image" \
-    -c 'until mc alias set local http://minio:9000 minioadmin minioadmin >/dev/null 2>&1; do sleep 1; done; mc ls --recursive local/helix-db')
+    -c 'until /usr/bin/mc alias set local http://minio:9000 minioadmin minioadmin >/dev/null 2>&1; do sleep 1; done; /usr/bin/mc ls --recursive local/helix-db')
   if [[ "$objects" != *"db/manifest/"* ]]; then
     printf '%s\n' "$objects" >&2
     printf 'expected MinIO to contain db/manifest objects\n' >&2
@@ -132,7 +132,7 @@ assert_minio_objects_present() {
   fi
 }
 
-log "Pulling pinned MinIO dependencies from Quay"
+log "Pulling pinned Chainguard MinIO dependencies"
 compose pull minio minio-init
 
 log "Starting pinned MinIO Compose fixture"
